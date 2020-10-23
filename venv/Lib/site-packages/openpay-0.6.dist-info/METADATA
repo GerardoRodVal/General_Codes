@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: openpay
+Version: 0.6
+Summary: Openpay python bindings
+Home-page: https://www.openpay.mx/
+Author: Openpay
+Author-email: soporte@openpay.mx
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Dist: requests (>=2.1.0)
+Requires-Dist: future (==0.15.2)
+
+UNKNOWN
+
+
