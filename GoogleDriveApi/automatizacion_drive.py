@@ -233,7 +233,9 @@ def recursos_main():
         df_log.close()
         print('Recursos terminados!!!')
 
-folder = '1-K29HyVsGlzyYh-vTO1KCb2RLQ_kpXK8'
-file = '1dSTu5dI4T60HthESuhiPyI1Vs1G8N99vHPrmWp_MRAQ'
+recursos_main()
+'''
+folder = '187DTqq5ZZlwiBQmIv6pu_FF1oomWXTHF'
+file = '1GbXwFVc_PAnv5Cq_Jq7-cyJctS2sPYt2YIcvdj-RUSg'
 SHEETS().move_docs(file, folder)
-# "https://knotion-rd-api.firebaseapp.com/__/auth/handler",
+'''

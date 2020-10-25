@@ -41,18 +41,8 @@ class SHEETS:
         items= results.get('files', [])
         # -------------------------------------------------------
 
-        print(fileID)
         file = drive.files().get(fileId=fileID, fields='parents').execute()
-        print(file)
-        previous_parents = ",".join(file.get('parents'))
-        print(previous_parents)
-        drive.files().update(fileId=fileID,
-                             addParents=folderID,
-                             removeParents=previous_parents,
-                             fields='id, parents').execute()
 
-
-        '''
         try:
             previous_parents = ",".join(file.get('parents'))
             print(previous_parents)
@@ -67,7 +57,7 @@ class SHEETS:
                                  removeParents='',
                                  fields='id, parents').execute()
             return 'Movido con exito'
-        '''
+
     def get_sheet(self, idsheet, pagerange, header=1):
         sheets = self.service.spreadsheets()
         result = sheets.values().get(spreadsheetId=idsheet, range=pagerange).execute()
