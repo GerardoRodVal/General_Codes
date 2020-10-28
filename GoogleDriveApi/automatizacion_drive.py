@@ -15,8 +15,8 @@ def get_foldersID():
     grados = ['K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9']
     capsulas = ['Caligrafía', 'Gramática', 'Matemáticas', 'Ortografía']
 
-    folders = SHEETS().get_id(semanas, 'folder')
-    #folders = [SHEETS().get_id(i, 'folder') for i in semanas + grados + capsulas]                             # obteniendo los ids con el nombre de la lsita
+    #folders = SHEETS().get_id(semanas, 'folder')
+    folders = [SHEETS().get_id(i, 'folder') for i in semanas + grados + capsulas]                             # obteniendo los ids con el nombre de la lsita
 
     semanas_dir = {}                                                                                          # Formato: {ruta: ID}
     for id in folders:
@@ -40,7 +40,6 @@ def recusos_move(df_log, dataframe, folderID):                                  
     for link in dataframe['Script / Link'].fillna('0'):
         try:
             if link == '0':
-                fileID = 'Vacio'
                 pass
             file = link.split('/')
             if file[2] == 'drive.google.com':
@@ -50,10 +49,10 @@ def recusos_move(df_log, dataframe, folderID):                                  
             SHEETS().move_docs(fileID, folderID)                                                              # moviendo el archivo
             print('Recurso Movido con exito!!!')
         except:
-            if len(fileID) == 44:
-                df_log.writelines(fileID + ',' + folderID + '\n')
+            if link != '0':
+                df_log.writelines(link + ',' + folderID + '\n')
                 print('Error con folder ' + folderID)
-                print('Error con archivo '+ fileID)
+                print('Error con archivo '+ link)
             continue
 
 def recursos_dataframe(data, Pathway, Idioma, Grado, Capsula, sesion=False):                                # funcion que calcula los filtros para cada carpeta
@@ -73,16 +72,17 @@ def recursos_dataframe(data, Pathway, Idioma, Grado, Capsula, sesion=False):    
 def recursos_main():
     print('Iniciando recursos!!!')
 
-    ruta = 'api/services/scheduler/'
+    ruta = ''
 
-    for i in ['1']:
+    for i in ['4']:
         reto = i
         data = pd.read_csv(ruta + 'reto_'+reto+'.csv')
 
         df_log = open(ruta + "ligas_drive_"+reto+".txt", "w")
 
-        semanas_dir = eval(open(ruta + "rutas.txt", 'r').read())
+        semanas_dir = eval(open(ruta + "rutas.txt", 'r', encoding="utf8").read())
         sesiones = [[1,5], [6,10], [11,15], [16,20]]
+
     # ------------------------------------------------------------------------------------------------- KINDER
         grados_kinder = ['K1', 'K2', 'K3', 'PF']
         for grado in grados_kinder:
@@ -145,6 +145,7 @@ def recursos_main():
                             print(directorio)
                     except:
                         continue
+
     # --------------------------------------------------------------------------------------------- SECUNDARIA
         pathway_secundaria = {'Español': [[1,5],[6,10], [11,15],[16,20]],
                               'Matemáticas': [[1,5],[6,10], [11,15],[16,20]],
@@ -188,7 +189,6 @@ def recursos_main():
                         print(directorio)
                     except:
                         continue
-
                 curriculares = {'Destrezas Gramaticales': 'Gramática', 'Destrezas Ortográficas': 'Ortografía'}
                 if path == 'Español':
                     for capsula in curriculares:
@@ -234,8 +234,3 @@ def recursos_main():
         print('Recursos terminados!!!')
 
 recursos_main()
-'''
-folder = '187DTqq5ZZlwiBQmIv6pu_FF1oomWXTHF'
-file = '1GbXwFVc_PAnv5Cq_Jq7-cyJctS2sPYt2YIcvdj-RUSg'
-SHEETS().move_docs(file, folder)
-'''
