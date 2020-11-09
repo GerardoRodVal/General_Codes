@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-
 def tiempo(hora):
     hora = hora.replace(' ', '')
     datetime_object = datetime.strptime(hora, '%H:%M:%S,%f')

@@ -2,6 +2,7 @@ from __future__ import print_function
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 import httplib2
 import pandas as pd
 import pickle
@@ -9,6 +10,12 @@ import os.path
 
 class SHEETS:
     def credentials(self):
+        Google_creds = 'service_account_file.json'
+        Scopes = "https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets"
+        credentials = service_account.Credentials.from_service_account_file(Google_creds, scopes=Scopes)
+        return credentials
+
+    def credentials2(self):
         '''Para cambiar las credenciales hay que eliminar el archivo toker.pickle y volver a ejecutar la funcion credentials'''
         SCOPES = ['https://www.googleapis.com/auth/drive',
                   "https://www.googleapis.com/auth/spreadsheets"]
@@ -24,7 +31,7 @@ class SHEETS:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file('credentials _Gerardo.json', SCOPES)
+                flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open('token.pickle', 'wb') as token:
@@ -33,14 +40,14 @@ class SHEETS:
 
     def move_docs(self, fileID, folderID):
         drive = build('drive', 'v3', credentials=self.credentials())
+        # ------------------------------------ obten una lista de los archivos de mi drive -----------------------------
+        #results = drive.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
+        #items = results.get('files', [])
+        # --------------------------------------------------------------------------------------------------------------
 
-        # obten una lista de los archivos de mi drive
-        results = drive.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
-        items= results.get('files', [])
-        # -------------------------------------------------------
-
-        file = drive.files().get(fileId=fileID, fields='parents').execute()
+        file = drive.files().get(fileId=fileID).execute()
         try:
+            #print(file.get('parents'))
             previous_parents = ",".join(file.get('parents'))
             drive.files().update(fileId=fileID,
                                  addParents=folderID,
@@ -51,8 +58,8 @@ class SHEETS:
             drive.files().update(fileId=fileID,
                                  addParents=folderID,
                                  removeParents='',
-                                 fields='id, parents').execute()
-            return 'Movido con exito'
+                                 fields='id').execute()
+        return 'Movido con exito'
 
     def get_parents(self, folderID):
         '''Funcion para obtener el directorio (subcarpetas) a partir del ID de un forlder'''
@@ -128,3 +135,4 @@ class SHEETS:
         else:
             data = pd.DataFrame(values[1:], columns=values[header - 1])
             return data
+

@@ -11,7 +11,6 @@ file = file.drop( ['Unnamed: 0', 'Unnamed: 0.1', 'index'], axis=1 )             
 
 
 def Haversine( lat1, lon1, lat2, lon2 ):
-
     r = 6371000                                                                                               # Radio terrestre en metros
     c = pi/180
     d = 2*r*asin(sqrt(sin((c*(lat2-lat1)/2)**2) + cos(c*lat1)*cos(c*lat2)*sin((c*(lon2-lon1))/2)**2))         # Ecuacion de Haversine

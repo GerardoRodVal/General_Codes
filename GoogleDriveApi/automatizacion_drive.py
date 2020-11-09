@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import pandas as pd
 import datetime
 from GoogleDriveApi.Google_Sheets_API import SHEETS
@@ -74,7 +75,7 @@ def recursos_main():
 
     ruta = ''
 
-    for i in ['4']:
+    for i in ['2', '3', '4']:
         reto = i
         data = pd.read_csv(ruta + 'reto_'+reto+'.csv')
 
@@ -233,4 +234,66 @@ def recursos_main():
         df_log.close()
         print('Recursos terminados!!!')
 
-recursos_main()
+from google.oauth2 import service_account
+Scopes = "https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets"
+
+from google.cloud import language
+credentials = service_account.Credentials.from_service_account_file('service_account_file.json', scopes=Scopes)
+client = language.LanguageServiceClient(credentials=credentials)
+print(client)
+
+def implicit():
+    from google.cloud import storage
+
+    # If you don't specify credentials when constructing the client, the
+    # client library will look for credentials in the environment.
+    storage_client = storage.Client()
+
+    # Make an authenticated API request
+    buckets = list(storage_client.list_buckets())
+    print(buckets)
+implicit()
+
+#recursos_main()
+folderID = '1ltUVaEY-0DFe_bsOprx41YQAc39RIa6N'
+fileID = '1UMClx9TXd183fbDKof5ZwMzZiVH7CLskO99Jl7HYvyE'
+#SHEETS().move_docs(fileID, folderID)
+
+'''
+from google.oauth2 import service_account
+Google_creds = 'service_account_file.json'
+Scopes = "https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets"
+credentials = service_account.Credentials.from_service_account_file(Google_creds, scopes=Scopes)
+
+body = {
+    "delegate": 'projects/-/serviceAccounts/knotion-rd-api@knotion-rd-api.iam.gserviceaccount.com',
+  "scope": "https://www.googleapis.com/auth/iam,https://www.googleapis.com/auth/cloud-platform",
+  "lifetime": "43200"
+}
+import requests as rq
+url = 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/knotion-rd-api@knotion-rd-api.iam.gserviceaccount.com:generateAccessToken'
+a = rq.get(url=url, headers=body)
+print(a.content)
+print(a.status_code)
+'''
+
+
+#SHEETS().move_docs(fileID, folderID)
+
+'''
+from oauth2client.service_account import ServiceAccountCredentials
+import httplib2
+
+SCOPES = [ "https://www.googleapis.com/auth/indexing" ]
+ENDPOINT = "https://indexing.googleapis.com/v3/urlNotifications:publish"
+
+JSON_KEY_FILE = "service_account_file.json"
+
+credentials = ServiceAccountCredentials.from_json_keyfile_name(JSON_KEY_FILE, scopes=SCOPES)
+
+http = credentials.authorize(httplib2.Http())
+content = '{  \"url\": \"http://example.com/jobs/42\",\"type\": \"URL_UPDATED"}'
+response, content = http.request(ENDPOINT, method="POST", body=content)
+print(response)
+print(content)
+'''
