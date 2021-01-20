@@ -7,11 +7,20 @@ import httplib2
 import pandas as pd
 import pickle
 import os.path
+from apiclient import errors
 
 class SHEETS:
+    def info_profile(self):
+        drive = build('drive', 'v3', credentials=self.credentials())
+        try:
+            about = drive.about().get(fields='*').execute()
+            print(about['user'])
+        except errors.HttpError as error:
+            print('An error occurred: %s' % error)
+
     def credentials(self):
         Google_creds = 'service_account_file.json'
-        Scopes = "https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets"
+        Scopes = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
         credentials = service_account.Credentials.from_service_account_file(Google_creds, scopes=Scopes)
         return credentials
 
@@ -44,10 +53,8 @@ class SHEETS:
         #results = drive.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
         #items = results.get('files', [])
         # --------------------------------------------------------------------------------------------------------------
-
         file = drive.files().get(fileId=fileID).execute()
         try:
-            #print(file.get('parents'))
             previous_parents = ",".join(file.get('parents'))
             drive.files().update(fileId=fileID,
                                  addParents=folderID,
@@ -100,6 +107,7 @@ class SHEETS:
         #for i in results:
         #    print(i.get('name'), i.get('id'))
 
+        print(results)
         try:
             IDs = [result.get('id') for result in results if result.get('name') in name]
         except Exception as e:

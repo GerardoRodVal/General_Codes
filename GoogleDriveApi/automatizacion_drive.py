@@ -16,8 +16,8 @@ def get_foldersID():
     grados = ['K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9']
     capsulas = ['Caligrafía', 'Gramática', 'Matemáticas', 'Ortografía']
 
-    #folders = SHEETS().get_id(semanas, 'folder')
-    folders = [SHEETS().get_id(i, 'folder') for i in semanas + grados + capsulas]                             # obteniendo los ids con el nombre de la lsita
+    folders = SHEETS().get_id(semanas + grados + capsulas, 'folder')
+    #folders = [SHEETS().get_id(i, 'folder') for i in semanas + grados + capsulas]                             # obteniendo los ids con el nombre de la lsita
 
     semanas_dir = {}                                                                                          # Formato: {ruta: ID}
     for id in folders:
@@ -70,230 +70,189 @@ def recursos_dataframe(data, Pathway, Idioma, Grado, Capsula, sesion=False):    
                          (data['Capsula'] == Capsula)]
     return dataframe
 
+def kinder(semanas_dir, df_log, data, reto):
+    sesiones = [[1, 5], [6, 10], [11, 15], [16, 20]]
+    grados_kinder = ['K1', 'K2', 'K3', 'PF']
+    for grado in grados_kinder:
+        for semana, sesion in enumerate(sesiones):
+            # ----------------------------------------------------------------------------- KINDER ESPAÑOL
+            directorio = 'Recursos Knotion /Kinder Español/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
+            kinder_espanol = recursos_dataframe(data, 'Español', 'ES', grado, 'Curricular', sesion)
+            folderID = semanas_dir[directorio]
+            recusos_move(df_log, kinder_espanol, folderID)
+            print(directorio)
+            # ------------------------------------------------------------------------------ KINDER INGLES
+            directorio = 'Recursos Knotion /Kinder Inglés/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
+            kinder_ingles = recursos_dataframe(data, 'English', 'EN', grado, 'Curricular', sesion)
+            folderID = semanas_dir[directorio]
+            recusos_move(df_log, kinder_ingles, folderID)
+            print(directorio)
+    return 0
+
+def primaria(semanas_dir, df_log, data, reto):
+    curriculares = {'Formación Cívica y Ética': 'FOCE', 'Matemáticas': 'Matemáticas'}
+    sesiones = [[1, 5], [6, 10], [11, 15], [16, 20]]
+    grados_primaria = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6']
+    for grado in grados_primaria:
+        for semana, sesion in enumerate(sesiones):
+            # --------------------------------------------------------------------------- PRIMARIA ESPAÑOL
+            directorio = 'Recursos Knotion /Primaria Español/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
+            primaria_espanol = recursos_dataframe(data, 'Español', 'ES', grado, 'Curricular', sesion)
+            folderID = semanas_dir[directorio]
+            recusos_move(df_log, primaria_espanol, folderID)
+            print(directorio)
+
+            # ---------------------------------------------------------------------------- PRIMARIA INGLES
+            directorio = 'Recursos Knotion /Primaria Inglés/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
+            primaria_ingles = recursos_dataframe(data, 'English', 'EN', grado, 'Curricular', sesion)
+            folderID = semanas_dir[directorio]
+            recusos_move(df_log, primaria_ingles, folderID)
+            print(directorio)
+
+        # --------------------------------------------------------------------- PRIMARIA CURRICULA ESPAÑOL
+        for capsula in curriculares:
+            if capsula == 'Matemáticas':
+                for semana, sesion in enumerate(sesiones):
+                    directorio = 'Recursos Knotion /Primaria Español/Reto ' + reto + '/' + grado + '/' + curriculares[
+                        capsula] + '/Semana ' + str(semana + 1)
+                    curricula_matematicas = data[(data['Pathway'] == 'Español') &
+                                                 (data['Idioma'] == 'ES') &
+                                                 (data['Grado'] == grado) &
+                                                 (data['Capsula'] == 'Curricular') &
+                                                 (data['Sesion'].between(sesion[0], sesion[1])) &
+                                                 (data['Relacionado con...'] == 'Matemáticas')]
+                    folderID = semanas_dir[directorio]
+                    recusos_move(df_log, curricula_matematicas, folderID)
+                    print(directorio)
+            else:
+                try:
+                    directorio = 'Recursos Knotion /Primaria Español/Reto ' + reto + '/' + grado + '/' + curriculares[
+                        capsula]
+                    folderID = semanas_dir[directorio]
+                    if capsula == 'Formación Cívica y Ética':
+                        print(capsula)
+                        curricula_espanol = recursos_dataframe(data, 'Formación Cívica y Ética', 'ES', grado, 'Curricular')
+                        recusos_move(df_log, curricula_espanol, folderID)
+                        print(directorio)
+                    else:
+                        curricula_espanol = recursos_dataframe(data, 'Español', 'ES', grado, capsula)
+                        recusos_move(df_log, curricula_espanol, folderID)
+                        print(directorio)
+                except:
+                    continue
+    return 0
+
+def secundaria(semanas_dir, df_log, data, reto):
+    pathway_secundaria = {'Español': [[1, 5], [6, 10], [11, 15], [16, 20]],
+                          'Matemáticas': [[1, 5], [6, 10], [11, 15], [16, 20]],
+                          'Civics and Ethics': [[1, 2], [3, 14], [5, 6], [7, 8]],
+                          'Chemistry': [[1, 6], [7, 12], [13, 18], [19, 24]],
+                          'Geography': [[1, 4], [5, 8], [9, 12], [13, 26]],
+                          'Global Citizenship': [[1, 5], [6, 10], [11, 15], [16, 20]],
+                          'Historia': {'M7': [[1, 2], [3, 4], [5, 6], [7, 8]],
+                                       'M8': [[1, 4], [5, 8], [9, 12], [13, 16]]},
+                          'Physics': [[1, 6], [7, 12], [13, 18], [19, 24]],
+                          'Biology': [[1, 4], [5, 8], [9, 12], [13, 16]],
+                          'Tutoría': [[1, 1], [2, 2], [3, 3], [4, 4]],
+                          'English Literacy': [[1, 5], [6, 10], [11, 15], [16, 20]]
+                          }
+    grados_secundaria = ['M7', 'M8', 'M9']
+    folders = {'Español': 'Español', 'Matemáticas': 'Matemáticas', 'Civics and Ethics': 'FOCE',
+               'Chemistry': 'Química', 'Geography': 'Geografía', 'Global Citizenship': 'Global',
+               'Historia': 'Historia', 'Physics': 'Física', 'Biology': 'Biología', 'Tutoría': 'Tutoría',
+               'English Literacy': 'English Literacy'}
+    for grado in grados_secundaria:
+        for path in pathway_secundaria:
+
+            if grado == 'M7' and path == 'Historia':  # eligiendo sesiones
+                sesiones = pathway_secundaria[path]['M7']
+            elif (grado == 'M8' or grado == 'M9') and path == 'Historia':
+                sesiones = pathway_secundaria[path]['M8']
+            else:
+                sesiones = pathway_secundaria[path]
+
+            if path == 'English Literacy':
+                idioma = 'EN'
+            else:
+                idioma = 'ES'
+
+            for semana, sesion in enumerate(sesiones):
+                try:
+                    directorio = 'Recursos Knotion /Secundaria/Reto ' + reto + '/' + grado + '/' + folders[
+                        path] + '/Semana ' + str(semana + 1)
+                    secundaria = recursos_dataframe(data, path, idioma, grado, 'Curricular', sesion)
+                    folderID = semanas_dir[directorio]
+                    recusos_move(df_log, secundaria, folderID)
+                    print(directorio)
+                except:
+                    continue
+            curriculares = {'Destrezas Gramaticales': 'Gramática', 'Destrezas Ortográficas': 'Ortografía'}
+            if path == 'Español':
+                for capsula in curriculares:
+                    directorio = 'Recursos Knotion /Secundaria/Reto ' + reto + '/' + grado + '/' + folders[path] + '/' + \
+                                 curriculares[capsula]
+                    secundaria_espanol = recursos_dataframe(data, 'Español', 'ES', grado, capsula)
+                    folderID = semanas_dir[directorio]
+                    recusos_move(df_log, secundaria_espanol, folderID)
+                    print(directorio)
+    return 0
+
+def extra_reto(semanas_dir, df_log, data, reto):
+    pathway_extra = {'Arte': ['Arte', 'K1', 'K2', 'K3', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
+                     'Educación Física': ['Educación Física', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5',
+                                          'E6', 'M7', 'M8', 'M9'],
+                     'Finance': ['Finanzas', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
+                     'Música': ['Música', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'],
+                     'Nutrition': ['Nutrición', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
+                     'OrganiK': ['OrganiK', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8',
+                                 'M9'],
+                     'Technology': ['Tecnología', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7',
+                                    'M8', 'M9'],
+                     'Heedfulness': ['Heedfulness', 'K1', 'K2', 'K3', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8',
+                                     'M9']
+                     }
+
+    for path in pathway_extra:
+        for grado in pathway_extra[path][1:]:
+
+            if path == 'Finance' or path == 'OrganiK':
+                idioma = 'EN'
+            else:
+                idioma = 'ES'
+
+            capsula = 'Curricular'
+            if path == 'Finance' or path == 'Nutrition' or path == 'OrganiK' or path == 'Heedfulness':
+                capsula = pathway_extra[path][0]
+            if path == 'Arte' and grado in ['K1', 'K2', 'K3']:
+                capsula = 'Expresión Artística'
+
+            directorio = 'Recursos Knotion /Extra reto/Reto ' + reto + '/' + pathway_extra[path][0] + '/' + grado
+            extra = data[(data['Pathway'] == path) &
+                         (data['Idioma'] == idioma) &
+                         (data['Grado'] == grado) &
+                         (data['Capsula'] == capsula)]
+            folderID = semanas_dir[directorio]
+            recusos_move(df_log, extra, folderID)
+            print(directorio)
+    return 0
+
 def recursos_main():
     print('Iniciando recursos!!!')
 
-    ruta = ''
+    for reto in ['4']:
+        data = pd.read_csv('reto_'+reto+'.csv')
+        df_log = open("ligas_drive_"+reto+".txt", "w")
+        semanas_dir = eval(open("rutas.txt", 'r', encoding="utf8").read())
 
-    for i in ['2', '3', '4']:
-        reto = i
-        data = pd.read_csv(ruta + 'reto_'+reto+'.csv')
+        #kinder(semanas_dir, df_log, data, reto)
+        primaria(semanas_dir, df_log, data, reto)
+        secundaria(semanas_dir, df_log, data, reto)
+        extra_reto(semanas_dir, df_log, data, reto)
 
-        df_log = open(ruta + "ligas_drive_"+reto+".txt", "w")
-
-        semanas_dir = eval(open(ruta + "rutas.txt", 'r', encoding="utf8").read())
-        sesiones = [[1,5], [6,10], [11,15], [16,20]]
-
-    # ------------------------------------------------------------------------------------------------- KINDER
-        grados_kinder = ['K1', 'K2', 'K3', 'PF']
-        for grado in grados_kinder:
-            for semana, sesion in enumerate(sesiones):
-                # ----------------------------------------------------------------------------- KINDER ESPAÑOL
-                directorio = 'Recursos Knotion /Kinder Español/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
-                kinder_espanol = recursos_dataframe(data, 'Español', 'ES', grado, 'Curricular', sesion)
-                folderID = semanas_dir[directorio]
-                recusos_move(df_log, kinder_espanol, folderID)
-                print(directorio)
-                # ------------------------------------------------------------------------------ KINDER INGLES
-                directorio = 'Recursos Knotion /Kinder Inglés/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
-                kinder_ingles = recursos_dataframe(data, 'English', 'EN', grado, 'Curricular', sesion)
-                folderID = semanas_dir[directorio]
-                recusos_move(df_log, kinder_ingles, folderID)
-                print(directorio)
-    # ----------------------------------------------------------------------------------------------- PRIMARIA
-        curriculares = {'Formación Cívica y Ética': 'FOCE'}
-        grados_primaria = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6']
-        for grado in grados_primaria:
-            for semana, sesion in enumerate(sesiones):
-                # --------------------------------------------------------------------------- PRIMARIA ESPAÑOL
-                directorio = 'Recursos Knotion /Primaria Español/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
-                primaria_espanol = recursos_dataframe(data, 'Español', 'ES', grado, 'Curricular', sesion)
-                folderID = semanas_dir[directorio]
-                recusos_move(df_log, primaria_espanol, folderID)
-                print(directorio)
-
-                # ---------------------------------------------------------------------------- PRIMARIA INGLES
-                directorio = 'Recursos Knotion /Primaria Inglés/Reto ' + reto + '/' + grado + '/Semana ' + str(semana + 1)
-                primaria_ingles = recursos_dataframe(data, 'English', 'EN', grado, 'Curricular', sesion)
-                folderID = semanas_dir[directorio]
-                recusos_move(df_log, primaria_ingles, folderID)
-                print(directorio)
-            # --------------------------------------------------------------------- PRIMARIA CURRICULA ESPAÑOL
-            for capsula in curriculares:
-                if capsula == 'Matemáticas':
-                    for semana, sesion in enumerate(sesiones):
-                        directorio = 'Recursos Knotion /Primaria Español/Reto ' + reto + '/' + grado + '/' + curriculares[capsula] + '/Semana ' + str(semana + 1)
-                        curricula_matematicas = data[(data['Pathway'] == 'Español') &
-                                                     (data['Idioma'] == 'ES') &
-                                                     (data['Grado'] == grado) &
-                                                     (data['Capsula'] == 'Curricular') &
-                                                     (data['Sesion'].between(sesion[0], sesion[1])) &
-                                                     (data['Relacionado con...'] == 'Matemáticas')]
-                        folderID = semanas_dir[directorio]
-                        recusos_move(df_log, curricula_matematicas, folderID)
-                        print(directorio)
-                else:
-                    try:
-                        directorio = 'Recursos Knotion /Primaria Español/Reto ' + reto + '/' + grado + '/' + curriculares[capsula]
-                        folderID = semanas_dir[directorio]
-                        if capsula == 'Formación Cívica y Ética':
-                            curricula_espanol = recursos_dataframe(data, 'Formación Cívica y Ética', 'ES', grado, 'Curricular')
-                            recusos_move(df_log, curricula_espanol, folderID)
-                            print(directorio)
-                        else:
-                            curricula_espanol = recursos_dataframe(data, 'Español', 'ES', grado, capsula)
-                            recusos_move(df_log, curricula_espanol, folderID)
-                            print(directorio)
-                    except:
-                        continue
-
-    # --------------------------------------------------------------------------------------------- SECUNDARIA
-        pathway_secundaria = {'Español': [[1,5],[6,10], [11,15],[16,20]],
-                              'Matemáticas': [[1,5],[6,10], [11,15],[16,20]],
-                              'Civics and Ethics': [[1,2],[3,14], [5,6],[7,8]],
-                              'Chemistry': [[1,6], [7,12], [13,18],[19,24]],
-                               'Geography': [[1,4],[5,8],[9,12],[13,26]],
-                              'Global Citizenship': [[1, 5], [6, 10], [11, 15], [16, 20]],
-                              'Historia': {'M7': [[1, 2], [3, 4], [5, 6], [7, 8]],
-                                           'M8': [[1, 4], [5, 8], [9, 12], [13, 16]]},
-                              'Physics': [[1,6],[7,12],[13,18],[19,24]],
-                              'Biology': [[1,4],[5,8],[9,12],[13,16]],
-                              'Tutoría': [[1,1],[2,2],[3,3],[4,4]],
-                              'English Literacy': [[1,5],[6,10],[11,15],[16,20]]
-                            }
-        grados_secundaria = ['M7', 'M8', 'M9']
-        folders = {'Español': 'Español', 'Matemáticas': 'Matemáticas', 'Civics and Ethics': 'FOCE',
-                   'Chemistry': 'Química', 'Geography': 'Geografía', 'Global Citizenship': 'Global',
-                   'Historia': 'Historia', 'Physics': 'Física', 'Biology': 'Biología', 'Tutoría': 'Tutoría',
-                   'English Literacy': 'English Literacy'}
-        for grado in grados_secundaria:
-            for path in pathway_secundaria:
-
-                if grado == 'M7' and path == 'Historia':                                                      # eligiendo sesiones
-                    sesiones = pathway_secundaria[path]['M7']
-                elif (grado == 'M8' or grado == 'M9') and path == 'Historia':
-                    sesiones = pathway_secundaria[path]['M8']
-                else:
-                    sesiones = pathway_secundaria[path]
-
-                if path == 'English Literacy':
-                    idioma = 'EN'
-                else:
-                    idioma = 'ES'
-
-                for semana, sesion in enumerate(sesiones):
-                    try:
-                        directorio = 'Recursos Knotion /Secundaria/Reto ' + reto + '/' + grado + '/' + folders[path] + '/Semana ' + str(semana + 1)
-                        secundaria = recursos_dataframe(data, path, idioma, grado, 'Curricular', sesion)
-                        folderID = semanas_dir[directorio]
-                        recusos_move(df_log, secundaria, folderID)
-                        print(directorio)
-                    except:
-                        continue
-                curriculares = {'Destrezas Gramaticales': 'Gramática', 'Destrezas Ortográficas': 'Ortografía'}
-                if path == 'Español':
-                    for capsula in curriculares:
-                        directorio = 'Recursos Knotion /Secundaria/Reto ' + reto + '/' + grado + '/' + folders[path] + '/' + curriculares[capsula]
-                        secundaria_espanol = recursos_dataframe(data, 'Español', 'ES', grado, capsula)
-                        folderID = semanas_dir[directorio]
-                        recusos_move(df_log, secundaria_espanol, folderID)
-                        print(directorio)
-        # --------------------------------------------------------------------------------------------- EXTRA RETO
-        pathway_extra = {'Arte': ['Arte', 'K1', 'K2', 'K3', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
-                         'Educación Física': ['Educación Física', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
-                         'Finance': ['Finanzas', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
-                         'Música': ['Música', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'],
-                         'Nutrition': ['Nutrición', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
-                         'OrganiK': ['OrganiK', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
-                         'Technology': ['Tecnología', 'K1', 'K2', 'K3', 'PF', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9'],
-                         'Heedfulness': ['Heedfulness', 'K1', 'K2', 'K3', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'M7', 'M8', 'M9']
-        }
-
-        for path in pathway_extra:
-            for grado in pathway_extra[path][1:]:
-
-                if path == 'Finance' or path == 'OrganiK':
-                    idioma = 'EN'
-                else:
-                    idioma = 'ES'
-
-                capsula = 'Curricular'
-                if path == 'Finance' or path == 'Nutrition' or path == 'OrganiK' or path == 'Heedfulness':
-                    capsula = pathway_extra[path][0]
-                if path == 'Arte' and grado in ['K1', 'K2', 'K3']:
-                    capsula = 'Expresión Artística'
-
-                directorio = 'Recursos Knotion /Extra reto/Reto ' + reto + '/' + pathway_extra[path][0] + '/' + grado
-                extra = data[(data['Pathway'] == path) &
-                             (data['Idioma'] == idioma) &
-                             (data['Grado'] == grado) &
-                             (data['Capsula'] == capsula)]
-                folderID = semanas_dir[directorio]
-                recusos_move(df_log, extra, folderID)
-                print(directorio)
         df_log.close()
         print('Recursos terminados!!!')
 
-from google.oauth2 import service_account
-Scopes = "https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets"
-
-from google.cloud import language
-credentials = service_account.Credentials.from_service_account_file('service_account_file.json', scopes=Scopes)
-client = language.LanguageServiceClient(credentials=credentials)
-print(client)
-
-def implicit():
-    from google.cloud import storage
-
-    # If you don't specify credentials when constructing the client, the
-    # client library will look for credentials in the environment.
-    storage_client = storage.Client()
-
-    # Make an authenticated API request
-    buckets = list(storage_client.list_buckets())
-    print(buckets)
-implicit()
-
-#recursos_main()
-folderID = '1ltUVaEY-0DFe_bsOprx41YQAc39RIa6N'
-fileID = '1UMClx9TXd183fbDKof5ZwMzZiVH7CLskO99Jl7HYvyE'
+recursos_main()
+#folderID = '1SWnnc6DEjuwGbwem-3sO8GEN_2Gz_e4x'
+#fileID = '1Gqe1dVL7VWP_ZKbR9B5cvx6BI6PhV_4_TZm7WVPks-Q'
 #SHEETS().move_docs(fileID, folderID)
-
-'''
-from google.oauth2 import service_account
-Google_creds = 'service_account_file.json'
-Scopes = "https://www.googleapis.com/auth/drive, https://www.googleapis.com/auth/spreadsheets"
-credentials = service_account.Credentials.from_service_account_file(Google_creds, scopes=Scopes)
-
-body = {
-    "delegate": 'projects/-/serviceAccounts/knotion-rd-api@knotion-rd-api.iam.gserviceaccount.com',
-  "scope": "https://www.googleapis.com/auth/iam,https://www.googleapis.com/auth/cloud-platform",
-  "lifetime": "43200"
-}
-import requests as rq
-url = 'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/knotion-rd-api@knotion-rd-api.iam.gserviceaccount.com:generateAccessToken'
-a = rq.get(url=url, headers=body)
-print(a.content)
-print(a.status_code)
-'''
-
-
-#SHEETS().move_docs(fileID, folderID)
-
-'''
-from oauth2client.service_account import ServiceAccountCredentials
-import httplib2
-
-SCOPES = [ "https://www.googleapis.com/auth/indexing" ]
-ENDPOINT = "https://indexing.googleapis.com/v3/urlNotifications:publish"
-
-JSON_KEY_FILE = "service_account_file.json"
-
-credentials = ServiceAccountCredentials.from_json_keyfile_name(JSON_KEY_FILE, scopes=SCOPES)
-
-http = credentials.authorize(httplib2.Http())
-content = '{  \"url\": \"http://example.com/jobs/42\",\"type\": \"URL_UPDATED"}'
-response, content = http.request(ENDPOINT, method="POST", body=content)
-print(response)
-print(content)
-'''
