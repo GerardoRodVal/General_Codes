@@ -17,7 +17,7 @@ def kmeans():
        5.1 Si hubo elementos que se asignaron a un centroide distinto al original, regresar al paso 4, de lo contrario, el proceso ha terminado
     '''
 
-    dataset = pd.read_csv('titanic.csv')
+    dataset = pd.read_csv('files/titanic.csv')
 
     '''preprocesando datos'''
     print(dataset.columns) # elegir dos columnas

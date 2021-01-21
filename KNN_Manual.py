@@ -34,6 +34,6 @@ def KNN( datos, K ):
 
 
 
-A = pd.read_csv('titanic.csv', header = 0, encoding = 'Latin-1')
+A = pd.read_csv('files/titanic.csv', header = 0, encoding ='Latin-1')
 A.columns = ['ID', 'something','class', 'name', 'gender', 'age', 'Age', 'X', 'number', 'dollars', 'room', 'survivor']
 print( KNN( A, int(input('ingresa los K vecinos:  '))) )
