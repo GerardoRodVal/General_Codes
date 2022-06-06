@@ -252,7 +252,11 @@ def recursos_main():
         df_log.close()
         print('Recursos terminados!!!')
 
-recursos_main()
-#folderID = '1SWnnc6DEjuwGbwem-3sO8GEN_2Gz_e4x'
-#fileID = '1Gqe1dVL7VWP_ZKbR9B5cvx6BI6PhV_4_TZm7WVPks-Q'
-#SHEETS().move_docs(fileID, folderID)
+#recursos_main()
+folderId = '1AZ3ff7o4Xk0oeX4a27jZ--GMdOdnYWPi'
+fileID = '1Sxq1lB1Y9eOZwy8hqFrwjloBX68ZjRLK'
+
+b = SHEETS().move_docs(fileID, folderId)
+print(b)
+
+#SHEETS().newtokenfile()

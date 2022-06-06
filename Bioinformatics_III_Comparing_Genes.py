@@ -47,6 +47,6 @@ def Global_Alignment(string1, string2):
     for i in range(1, long1):
         row = []
         for j in range(1, long2):
-            row.append()
+            row.append(j)
 
 Global_Alignment('PLEASANTLY', 'MEANLY')

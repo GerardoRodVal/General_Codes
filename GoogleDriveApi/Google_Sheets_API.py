@@ -19,12 +19,13 @@ class SHEETS:
             print('An error occurred: %s' % error)
 
     def credentials(self):
-        Google_creds = 'service_account_file.json'
-        Scopes = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/spreadsheets"]
+        Google_creds = 'CredWebDriveApi.json'
+        Scopes = ['https://spreadsheets.google.com/feeds',
+                  'https://docs.google.com/feeds https://www.googleapis.com/auth/drive.file']
         credentials = service_account.Credentials.from_service_account_file(Google_creds, scopes=Scopes)
         return credentials
 
-    def credentials2(self):
+    def newtokenfile(self):
         '''Para cambiar las credenciales hay que eliminar el archivo toker.pickle y volver a ejecutar la funcion credentials'''
         SCOPES = ['https://www.googleapis.com/auth/drive',
                   "https://www.googleapis.com/auth/spreadsheets"]
@@ -40,7 +41,7 @@ class SHEETS:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+                flow = InstalledAppFlow.from_client_secrets_file('CredWebDriveApi.json', SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open('token.pickle', 'wb') as token:
@@ -48,23 +49,29 @@ class SHEETS:
         return creds
 
     def move_docs(self, fileID, folderID):
+
         drive = build('drive', 'v3', credentials=self.credentials())
+
+        driveid = drive.files().get(fileId='root').execute()['id']
+        print(driveid)
+
         # ------------------------------------ obten una lista de los archivos de mi drive -----------------------------
         #results = drive.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
         #items = results.get('files', [])
         # --------------------------------------------------------------------------------------------------------------
-        file = drive.files().get(fileId=fileID).execute()
-        try:
-            previous_parents = ",".join(file.get('parents'))
+        file = drive.files().get(fileId=fileID, fields='*').execute()
+        parent = file.get('parents')
+        if parent != None:
+            previous_parents = ",".join(parent)
             drive.files().update(fileId=fileID,
                                  addParents=folderID,
                                  removeParents=previous_parents,
                                  fields='id, parents').execute()
             return 'Movido con exito!!'
-        except:
+        else:
             drive.files().update(fileId=fileID,
                                  addParents=folderID,
-                                 removeParents='',
+                                 removeParents=None,
                                  fields='id').execute()
         return 'Movido con exito'
 
@@ -84,7 +91,9 @@ class SHEETS:
 
     def get_id(self, name, tipo='folder'):
         '''Obtener el ID de todos los folder o archivos (segun se especifique) a partir del nombre de entrada'''
+        '''name como entrada toma una lista de strings'''
         drive = build('drive', 'v3', credentials=self.credentials())
+        #a = drive.about().get(fields='*').execute()
         results = []
         page_token = None
         if tipo == 'sheet':
@@ -104,21 +113,17 @@ class SHEETS:
                 print(f'An error has occurred: {error}')
                 break
         # el nombre de todos los archivos con su id
+        #print(results)
         #for i in results:
         #    print(i.get('name'), i.get('id'))
 
-        print(results)
         try:
             IDs = [result.get('id') for result in results if result.get('name') in name]
         except Exception as e:
             IDs = None
             print(e)
 
-        print(IDs)
-        if len(IDs) >= 2:
-            return IDs
-        else:
-            return IDs[0]
+        return IDs
 
     # apartir de aqui. Funciones no probadas como funcionales
     def get_sheet(self, idsheet, header=1):

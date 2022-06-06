@@ -37,7 +37,7 @@ def Dot_plot_3( sec1, sec2 ):                         # Graficando secuencia de 
     plt.autoscale()
     plt.xticks(range(len(sec2)),sec2,rotation=90)       # definiendo tecto de eje X
     plt.yticks(range(len(sec1)),sec1)                   # definiendo texto de eje y
-    plt.imshow( Matriz, cmap=plt.cm.gray_r )
+    plt.imshow( Matriz )
     plt.savefig('Dot_plot_3.png')
     plt.show()
     return 'OK para Dot-plot 3'
