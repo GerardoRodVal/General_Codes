@@ -190,3 +190,41 @@ def SelectComputeTarget():
                                     script='script.py',
                                     environment=training_env,
                                     compute_target=compute_name)
+
+def deployModel():
+    from azureml.core import Model
+
+    classification_model = Model.register(workspace=ws,
+                                          model_name='amlstudio-predict-auto-price',
+                                          description='A classification model')
+
+def samplig():
+    from azureml.train.hyperdrive import GridParameterSampling, choice
+
+    param_space = {
+        '--batch_size': choice(16, 32, 64),
+        '--learning_rate': choice(0.01, 0.1, 1.0)   # grid sampling
+        #'--learning_rate': normal(10, 3)   # random
+        #'--learning_rate': uniform(0.05, 0.1)  # Bayesian
+
+    }
+
+    param_sampling = GridParameterSampling(param_space)
+
+def early_termination():
+    from azureml.train.hyperdrive import BanditPolicy
+
+    # bandit policy
+    early_termination_policy = BanditPolicy(slack_amount=0.2,
+                                            evaluation_interval=1,
+                                            delay_evaluation=5)
+
+    # median stopping policy
+    early_termination_policy = MedianStoppingPolicy(evaluation_interval=1,
+                                                    delay_evaluation=5)
+
+    # Truncation selection policy
+
+    early_termination_policy = TruncationSelectionPolicy(truncation_percentage=10,
+                                                         evaluation_interval=1,
+                                                         delay_evaluation=5)
