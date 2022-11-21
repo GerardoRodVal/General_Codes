@@ -3,14 +3,14 @@ from datetime import datetime, timedelta
 def tiempo(hora):
     hora = hora.replace(' ', '')
     datetime_object = datetime.strptime(hora, '%H:%M:%S,%f')
-    X = 17
+    X = 77
     result = datetime_object + timedelta(seconds=X)
     result = ','.join(str(result.time()).split('.'))
     return result[:-3]
 
-descargas = r'C:\Users\Gerar\Downloads\The Quiet Earth (1985)'
-entrada = open(descargas+'\\The Quiet Earth (1985).srt', 'r',encoding='utf-8')
-salida = open(descargas + '\sub_fix.srt', 'w+', encoding='utf-8')
+descargas = r'C:\Users\Gerar\Downloads\Wolfwalkers'
+entrada = open(descargas+'\\Wolfwalkers_(2020).srt', 'r',encoding='utf-8')
+salida = open(descargas + '\Wolfwalkers_(2020)_eng.srt', 'w+', encoding='utf-8')
 for row in entrada.readlines():
     row = row.strip().split('-->')
     try:
