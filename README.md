@@ -1,0 +1,3 @@
+# General_Codes
+
+This folder contains a combination of codes that solve different problems with different techniques, machine learning, bioinformatics methods, evolutionary computing...
