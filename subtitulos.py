@@ -3,7 +3,6 @@ import os
 import keyboard
 from unicodedata import numeric
 
-
 class subtitles_config:
     def __init__(self):
         self.path_out = r'C:\Users\gerardo_offline\Desktop\\'
